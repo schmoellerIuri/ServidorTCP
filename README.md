@@ -21,6 +21,6 @@ public class Tarefa
 
 O servidor inicia a sua execução esperando alguma conexão TCP na porta definida para assim iniciar uma thread que corresponde a cada cliente que se conecta.
 
-Para cada cliente é executado o KEA(Key Exchange Algorithm), onde cada ponta de comunicação envia a sua chave pública para a outra e descobrem um segredo compartilhado por meio do algoritmo Diffie-Helmann. A imagem a seguir representa de forma simples o KEA:
+Em seguida é executado o KEA(Key Exchange Algorithm), onde cada ponta de comunicação envia a sua chave pública para a outra e descobre um segredo compartilhado por meio do algoritmo Diffie-Helmann. A imagem a seguir representa de forma simples o KEA:
 
 ![Key Exchange Algorithm](https://cybermeteoroid.com/wp-content/uploads/2022/01/Diffie%E2%80%93Hellman-key-exchange-1.jpg)
