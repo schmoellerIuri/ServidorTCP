@@ -19,9 +19,10 @@ namespace PraticaSockets
             return id;
         }
 
-        public static void CriarTarefa(Tarefa tarefa)
+        public static int CriarTarefa(Tarefa tarefa)
         {
             tarefas.Add(tarefa);
+            return tarefa.Id;
         }
 
         public static List<Tarefa> LerTarefas()

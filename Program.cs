@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using PraticaSockets;
+
+Console.Clear();
 
 string ip = "127.0.0.1";
 int port = 50000;
@@ -13,84 +13,172 @@ var servidor = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolT
 
 servidor.Bind(ipEndPoint);
 servidor.Listen(10);
+int i = 0;
 
 while (true)
 {
     var handler = await servidor.AcceptAsync();
-    var thread = new Thread(DoWork);
+    var thread = new Thread(DoWork)
+    {
+        Name = "Thread " + i++
+    };
     thread.Start(handler);
 }
 
 
 void DoWork(object handler)
 {
-    var _handler = (Socket) handler;
-        
+    var _handler = (Socket)handler;
+
+    #region Troca de chaves para segredo compartilhado
+    var clientPublicKey = Array.Empty<byte>();
+    try
+    {
+        var sizeOfPublicKeyBytes = BitConverter.GetBytes(CryptoManager.PublicKey.Length);
+        _handler.Send(sizeOfPublicKeyBytes, SocketFlags.None);
+        _handler.Send(CryptoManager.PublicKey, SocketFlags.None);
+
+        var sizeOfClientPublicKeyBytes = new byte[4];
+        _handler.Receive(sizeOfClientPublicKeyBytes, SocketFlags.None);
+
+        int sizeOfClientPublicKey = BitConverter.ToInt32(sizeOfClientPublicKeyBytes, 0);
+
+        clientPublicKey = new byte[sizeOfClientPublicKey];
+        _handler.Receive(clientPublicKey, SocketFlags.None);
+    }
+    catch
+    {
+        Console.WriteLine($"Erro ao receber chave pública do cliente: {Thread.CurrentThread.Name}");
+        return;
+    }
+    #endregion
+
+    #region Autenticação do cliente
+    string authMessage = "|<A>|Auth Message!";
+    string rsaPublicParams = "";
+    try
+    {
+        SendEncryptedMessage(_handler, authMessage, clientPublicKey);
+
+        rsaPublicParams = ReceiveDecryptedMessage(_handler, clientPublicKey);
+
+        var authSignature = ReceiveDecryptedMessage(_handler, clientPublicKey, true);
+
+        var hashedAuthMessage = ReceiveDecryptedMessage(_handler, clientPublicKey, true);
+
+        if (!CryptoManager.Authenticate(rsaPublicParams, authMessage, authSignature, hashedAuthMessage))
+        {
+            var message = "|<E>|Falha na autenticação!";
+            SendEncryptedMessage(_handler, message, clientPublicKey);
+
+            Console.WriteLine($"Falha na autenticação: {Thread.CurrentThread.Name}");
+            return;
+        }
+    }
+    catch (Exception)
+    {
+        var message = "|<E>|Falha na autenticação!";
+        SendEncryptedMessage(_handler, message, clientPublicKey);
+
+        Console.WriteLine($"Erro ao receber mensagem de autenticação: {Thread.CurrentThread.Name}");
+        return;
+    }
+
+    var messageSucces = "|<S>|Autenticação realizada com sucesso!";
+    SendEncryptedMessage(_handler, messageSucces, clientPublicKey);
+    #endregion
+
     while (true)
     {
-        //recebe o tamanho em bytes da mensagem
-        var sizeInBytes = new byte[4];
+        string request = "";
         try
         {
-            _ = _handler.Receive(sizeInBytes, SocketFlags.None);
+            request = ReceiveDecryptedMessage(_handler, clientPublicKey);
         }
         catch
         { break; }
 
-        var size = BitConverter.ToInt32(sizeInBytes, 0);
 
-        //recebe a mensagem
-        var buffer = new byte[size];
-        var qtdBytesRequest = _handler.Receive(buffer, SocketFlags.None);
-        var request = Encoding.UTF8.GetString(buffer, 0, qtdBytesRequest);
-
-        if (String.IsNullOrEmpty(request))
+        if (string.IsNullOrEmpty(request))
             continue;
 
         string operacao = request[..5];
-        byte[] retornoAoCliente = Array.Empty<byte>();
+        string retornoAoCliente = "";
 
-        if (string.Equals(operacao, "|<E>|")) 
+        if (string.Equals(operacao, "|<E>|"))
             break;
-        
+
 
         try
         {
             switch (operacao)
             {
                 case "|<C>|":
-                    TarefasManager.CriarTarefa(DecoderTarefas.DecodeTarefa(request[5..], false));
-                    retornoAoCliente = Encoding.UTF8.GetBytes("Tarefa criada com sucesso!");
+                    var id = TarefasManager.CriarTarefa(DecoderTarefas.DecodeTarefa(request[5..], false));
+                    retornoAoCliente = "Tarefa criada com sucesso! Id: " + id.ToString();
                     break;
                 case "|<R>|":
                     var idRequisitado = int.Parse(request[5..]);
-                    retornoAoCliente = idRequisitado == 0 ? EncoderTarefas.EncodeListaDeTarefas(TarefasManager.LerTarefas()) : Encoding.UTF8.GetBytes(EncoderTarefas.EncodeTarefa(TarefasManager.LerTarefaPorId(idRequisitado)));
+                    retornoAoCliente = idRequisitado == 0 ? EncoderTarefas.EncodeListaDeTarefas(TarefasManager.LerTarefas()) : EncoderTarefas.EncodeTarefa(TarefasManager.LerTarefaPorId(idRequisitado));
                     break;
                 case "|<U>|":
                     TarefasManager.AtualizarTarefa(DecoderTarefas.DecodeTarefa(request[5..], true));
-                    retornoAoCliente = Encoding.UTF8.GetBytes("Tarefa atualizada com sucesso!");
+                    retornoAoCliente = "Tarefa atualizada com sucesso!";
                     break;
                 case "|<D>|":
                     TarefasManager.RemoverTarefa(int.Parse(request[5..]));
-                    retornoAoCliente = Encoding.UTF8.GetBytes("Tarefa removida com sucesso!");
+                    retornoAoCliente = "Tarefa removida com sucesso!";
                     break;
                 default:
-                    retornoAoCliente = Encoding.UTF8.GetBytes("Operação inválida");
+                    retornoAoCliente = "Operação inválida";
                     break;
             }
         }
         catch (Exception ex)
         {
-            retornoAoCliente = Encoding.UTF8.GetBytes($"Erro ao executar operação: {ex.Message}");
+            retornoAoCliente = $"Erro ao executar operação: {ex.Message}";
 
         }
         finally
         {
-            var sizeResponse = retornoAoCliente.Length;
-            _handler.Send(BitConverter.GetBytes(sizeResponse), SocketFlags.None);
-            _handler.Send(retornoAoCliente, SocketFlags.None);
+            SendEncryptedMessage(_handler, retornoAoCliente, clientPublicKey);
         }
     }
 
     _handler.Close();
+}
+
+void SendEncryptedMessage(Socket handler, string message, byte[] clientPublicKey)
+{
+    var encryptedRequest = CryptoManager.Encrypt(message, clientPublicKey);
+
+    var sizeOfIVBytes = BitConverter.GetBytes(encryptedRequest.IV.Length);
+    handler.Send(sizeOfIVBytes, SocketFlags.None);
+
+    handler.Send(encryptedRequest.IV, SocketFlags.None);
+
+    var sizeOfRequestBytes = BitConverter.GetBytes(encryptedRequest.encryptedMessage.Length);
+    handler.Send(sizeOfRequestBytes, SocketFlags.None);
+
+    handler.Send(encryptedRequest.encryptedMessage, SocketFlags.None);
+}
+
+dynamic ReceiveDecryptedMessage(Socket handler, byte[] clientPublicKey, bool receiveBytes = false)
+{
+    var sizeOfIVResponseBytes = new byte[4];
+    handler.Receive(sizeOfIVResponseBytes, SocketFlags.None);
+    int sizeOfIVResponse = BitConverter.ToInt32(sizeOfIVResponseBytes);
+
+    var ivResponse = new byte[sizeOfIVResponse];
+    handler.Receive(ivResponse, SocketFlags.None);
+
+    var sizeOfResponseBytes = new byte[4];
+    handler.Receive(sizeOfResponseBytes, SocketFlags.None);
+    int sizeOfResponse = BitConverter.ToInt32(sizeOfResponseBytes);
+
+    var responseBytes = new byte[sizeOfResponse];
+    handler.Receive(responseBytes, SocketFlags.None);
+    var response = CryptoManager.Decrypt(responseBytes, ivResponse, clientPublicKey, receiveBytes);
+
+    return response;
 }

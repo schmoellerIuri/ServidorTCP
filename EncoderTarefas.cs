@@ -8,7 +8,7 @@ namespace PraticaSockets
 {
     public static class EncoderTarefas
     {
-        public static byte[] EncodeListaDeTarefas(List<Tarefa> tarefas)
+        public static string EncodeListaDeTarefas(List<Tarefa> tarefas)
         {
             string encoded = "";
 
@@ -17,7 +17,7 @@ namespace PraticaSockets
                 encoded += EncodeTarefa(tarefa) + "\n";
             }
 
-            return Encoding.UTF8.GetBytes(encoded);
+            return encoded;
         }
 
         public static string EncodeTarefa(Tarefa tarefa)
