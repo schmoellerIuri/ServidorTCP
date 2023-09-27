@@ -3,7 +3,7 @@ Servidor TCP local para CRUD da entidade "Tarefa"
 
 **1 - Estrutura**
 
-O sistema é um CRUD para gerenciamento de tarefas (To do list) por meio de uma conexão TCP entre cliente e servidor. A implementação foi feita toda com a linguagem C# e o framework .NET 7 em ambos os lados da aplicação, portanto o seu funcionamento depende da instalação do [.NET 7 SDK.](https://dotnet.microsoft.com/pt-br/download/dotnet/7.0)
+O sistema é um CRUD para gerenciamento de tarefas (To do list) por meio de uma conexão TCP entre cliente e servidor. A implementação foi feita toda com a linguagem C# e o framework .NET 7 em ambos os lados da aplicação, portanto o seu funcionamento depende da instalação do [.NET 7 SDK.](https://dotnet.microsoft.com/pt-br/download/dotnet/7.0) e é consumido pela aplicação [Cliente TCP](https://github.com/schmoellerIuri/ClienteTCP)
 
 A classe a ser manipulada foi definida como Tarefa e será salva em uma lista de objetos no servidor, ou seja, não é salva após seu desligamento. A estrutura do objeto é a seguinte:
 <pre>
@@ -17,10 +17,9 @@ public class Tarefa
 }
 </pre>
 
-**2 - Fluxo de execução e estrutura dos pacotes**
+**2 - Funcionalidades**
 
-O servidor inicia a sua execução esperando alguma conexão TCP na porta definida para assim iniciar uma thread que corresponde a cada cliente que se conecta.
+**2.1 - Confidencialidade por KEA(Key Exchange Algorithm)**
+O servidor possui criptografia simétrica para cifrar todos os pacotes que são trocados entre as pontas de comunicação pelo padrão AES. A chave privada utilizada entre as partes é obtida por um KEA, que é um processo que utiliza a criptografia assimétrica com o algoritmo Diffie-Hellman em um canal não seguro para obter um segredo compartilhado que será utilizado como chave privada:
 
-Em seguida é executado o KEA(Key Exchange Algorithm), onde cada ponta de comunicação envia a sua chave pública para a outra e descobre um segredo compartilhado por meio do algoritmo Diffie-Helmann. A imagem a seguir representa de forma simples o KEA:
-
-![Key Exchange Algorithm](https://cybermeteoroid.com/wp-content/uploads/2022/01/Diffie%E2%80%93Hellman-key-exchange-1.jpg)
+![KEA](https://www.practicalnetworking.net/wp-content/uploads/2015/11/dh-revised.png)
