@@ -42,3 +42,7 @@ No caso da aplicação [Cliente](https://github.com/schmoellerIuri/ClienteTCP) o
 "C", "R", "U" e "D":
 
 ![Aplicação cliente](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot1-Cliente.png)
+
+Ao realizar uma requisição recebe a resposta vinda do servidor:
+
+![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot2-Cliente.png)
