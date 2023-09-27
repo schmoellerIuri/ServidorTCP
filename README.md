@@ -34,3 +34,11 @@ Também é realizada a autenticação de cada cliente que realiza uma nova conex
 
 Além disso, as operações CREATE, READ, UPDATE e DELETE são implementadas para que os clientes consigam executá-las de forma remota e segura com canal criptografado. Pacotes são enviados em formato semelhante ao JSON e são enviados como bytes em um canal socket entre as pontas de comunicação.
 
+**3 - Execução**
+
+Para rodar o projeto basta acessar a pasta da aplicação pelo terminal e executar o comando "dotnet run", **vale ressaltar que a aplicação funciona somente no SO WINDOWS**. No caso do servidor não há nenhuma interação com o usuário e fica rodando em background pelo terminal.
+
+No caso da aplicação [Cliente](https://github.com/schmoellerIuri/ClienteTCP) o usuário faz a sua interação pelo terminal e decide qual operação quer fazer digitando as letras 
+"C", "R", "U" e "D":
+
+![Aplicação cliente](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot1-Cliente.png)
