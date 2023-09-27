@@ -46,3 +46,5 @@ No caso da aplicação [Cliente](https://github.com/schmoellerIuri/ClienteTCP) o
 Ao realizar uma requisição recebe a resposta vinda do servidor:
 
 ![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot2-Cliente.png)
+
+![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot3-Cliente.png)
