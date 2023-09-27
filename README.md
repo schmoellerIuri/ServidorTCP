@@ -41,10 +41,10 @@ Para rodar o projeto basta acessar a pasta da aplicação pelo terminal e execut
 No caso da aplicação [Cliente](https://github.com/schmoellerIuri/ClienteTCP) o usuário faz a sua interação pelo terminal e decide qual operação quer fazer digitando as letras 
 "C", "R", "U" e "D":
 
-![Aplicação cliente](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot1-Cliente.png)
+![Aplicação cliente](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Imagens/Screenshot1-Cliente.png)
 
 Ao realizar uma requisição recebe a resposta vinda do servidor:
 
-![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot2-Cliente.png)
+![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Imagens/Screenshot2-Cliente.png)
 
-![Exemplo de comando 2](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot3-Cliente.png)
+![Exemplo de comando 2](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Imagens/Screenshot3-Cliente.png)
