@@ -20,6 +20,17 @@ public class Tarefa
 **2 - Funcionalidades**
 
 **2.1 - Confidencialidade por KEA(Key Exchange Algorithm)**
+
 O servidor possui criptografia simétrica para cifrar todos os pacotes que são trocados entre as pontas de comunicação pelo padrão AES. A chave privada utilizada entre as partes é obtida por um KEA, que é um processo que utiliza a criptografia assimétrica com o algoritmo Diffie-Hellman em um canal não seguro para obter um segredo compartilhado que será utilizado como chave privada:
 
 ![KEA](https://www.practicalnetworking.net/wp-content/uploads/2015/11/dh-revised.png)
+
+**2.2 - Autenticidade por RSA e Integridade por função Hash SHA256**
+
+Também é realizada a autenticação de cada cliente que realiza uma nova conexão com o servidor, que recebe a chave pública do cliente e envia uma mensagem de autenticação criptografada de volta. O cliente então assina a mensagem com a sua chave privada e envia a assinatura e o Hash SHA256 da mensagem de autenticação de volta, para que assim o servidor verifique a integridade da mensagem e a autenticidade da conexão.
+
+
+**2.3 - Funções CRUD para conexões simultâneas**
+
+Além disso, as operações CREATE, READ, UPDATE e DELETE são implementadas para que os clientes consigam executá-las de forma remota e segura com canal criptografado. Pacotes são enviados em formato semelhante ao JSON e são enviados como bytes em um canal socket entre as pontas de comunicação.
+
