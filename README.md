@@ -47,4 +47,4 @@ Ao realizar uma requisição recebe a resposta vinda do servidor:
 
 ![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot2-Cliente.png)
 
-![Exemplo de comando](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot3-Cliente.png)
+![Exemplo de comando 2](https://github.com/schmoellerIuri/ServidorTCP/blob/master/Screenshot3-Cliente.png)
